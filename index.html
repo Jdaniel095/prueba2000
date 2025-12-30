@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Para ti, mi pequeña bebé</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app" class="app" aria-label="Historia interactiva">
+    <div class="bg" aria-hidden="true"></div>
+
+    <section class="stage" id="stage">
+      <div class="media">
+        <!-- Doble imagen para crossfade suave -->
+        <img id="imgA" class="scene-img is-active" alt="" />
+        <img id="imgB" class="scene-img" alt="" />
+
+        <!-- Video final -->
+        <video id="sceneVideo" class="scene-video" playsinline preload="metadata"></video>
+
+        <!-- Oscurecido suave -->
+        <div class="vignette" aria-hidden="true"></div>
+      </div>
+
+    <audio id="bgAudio" src="assets/bg.mp3" loop preload="auto"></audio>
+<audio id="fxAudio" loop preload="auto"></audio>
+
+
+
+
+      <!-- Textos flotantes -->
+      <div class="overlay" id="overlay" aria-live="polite"></div>
+
+      <header class="topbar">
+        <div class="pill left">🌙 <span>Para ti, mi pequeña bebé</span></div>
+        <div class="pill right" id="hint">Haz clic para avanzar</div>
+      </header>
+
+      <footer class="bottombar">
+        <div class="progress" id="progress"></div>
+        <div class="counter" id="counter">Escena 0/10</div>
+      </footer>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

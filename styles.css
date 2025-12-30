@@ -1,0 +1,450 @@
+:root{
+  --bg1:#0b0b14;
+  --bg2:#1a1130;
+  --text:#f2f2ff;
+  --muted:#b9b9d6;
+  --stroke:rgba(255,255,255,.10);
+  --shadow: 0 30px 80px rgba(0,0,0,.55);
+  --radius: 22px;
+}
+
+*{ box-sizing:border-box; }
+
+html,body{
+  height:100%;
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto;
+  background:#000;
+  color:var(--text);
+}
+
+.app{
+  min-height:100%;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  position:relative;
+  overflow:hidden;
+}
+
+/* =========================
+   FONDO GRANDE
+   ========================= */
+.bg{
+  position:fixed;
+  inset:-40vh -40vw;
+  background:
+    radial-gradient(1200px 800px at 50% 35%, rgba(120,95,255,.25), transparent 60%),
+    radial-gradient(900px 700px at 20% 70%, rgba(255,170,90,.18), transparent 55%),
+    radial-gradient(900px 700px at 80% 75%, rgba(80,200,255,.12), transparent 55%),
+    linear-gradient(180deg, var(--bg1), var(--bg2));
+  filter: blur(18px) saturate(1.25);
+  transform: scale(1.08);
+  animation: bgFloat 10s ease-in-out infinite alternate;
+  z-index:-2;
+}
+
+@keyframes bgFloat{
+  from{ transform: scale(1.06) translateY(0); }
+  to{ transform: scale(1.10) translateY(-18px); }
+}
+
+/* =========================
+   STAGE FULLSCREEN
+   ========================= */
+.stage{
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  border: none;
+  background: #000;
+  box-shadow: none;
+  overflow: hidden;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* pulso suave */
+.stage::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  animation: pulse 2.5s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes pulse{
+  0%,100%{ box-shadow: inset 0 0 0 rgba(255,255,255,0); }
+  50%{ box-shadow: inset 0 0 40px rgba(255,255,255,.06); }
+}
+
+/* =========================
+   MEDIA
+   ========================= */
+.media{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+
+/* Crossfade (doble img) */
+.scene-img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0;
+  transform: scale(1.03);
+  transition: opacity 700ms ease, transform 1400ms ease;
+  will-change: opacity, transform;
+}
+.scene-img.is-active{
+  opacity:1;
+  transform: scale(1);
+}
+
+/* Video */
+.scene-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:none;
+  opacity:0; /* para fade con JS */
+}
+
+/* Viñeta suave */
+.vignette{
+  position:absolute;
+  inset:0;
+  background:
+        radial-gradient(1200px 700px at 50% 45%, transparent 44%, rgba(0,0,0,.22) 85%),
+    linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.22));
+  pointer-events:none;
+}
+
+/* =========================
+   UI
+   ========================= */
+.topbar{
+  position:absolute;
+  top:14px;
+  left:14px;
+  right:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  z-index:5;
+}
+
+.pill{
+  padding:10px 12px;
+  border-radius: 999px;
+  border:1px solid var(--stroke);
+  background: rgba(10,10,18,.30);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font-size: 14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.pill.right{ color:rgba(255,255,255,.78); }
+
+/* ocultar hint y contador como pediste */
+.pill.right{ display:none; }
+
+.bottombar{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:5;
+}
+
+.progress{ display:flex; gap:8px; }
+.dot{
+  width:10px; height:10px;
+  border-radius:999px;
+  background: rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.10);
+}
+.dot.active{ background: rgba(255,255,255,.82); }
+
+.counter{
+  font-size:13px;
+  color: rgba(255,255,255,.75);
+  display:none;
+}
+
+/* =========================
+   OVERLAY
+   ========================= */
+.overlay{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+}
+
+/* =========================
+   CAPTION "POWERPOINT"
+   (SIN CUADRO, SUB POR CLICK)
+   ========================= */
+/* =========================
+   CAPTION "CINEMATIC"
+   (SIN CUADRO, MÁS LEGIBLE)
+   ========================= */
+.caption{
+  position:absolute;
+  left:50%;
+  top:65%;
+  transform: translate(-50%, -50%);
+  width:min(1100px, 92%);
+  text-align:center;
+  pointer-events:none;
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+
+  /* para el scrim */
+  isolation: isolate;
+}
+
+/* Variantes de posición (por escena/step) */
+.caption.pos-center{ left:50%; top:52%; text-align:center; }
+.caption.pos-bottom{ left:50%; top:78%; text-align:center; }
+.caption.pos-top{ left:50%; top:22%; text-align:center; }
+
+.caption.pos-topLeft{ left:10%; top:18%; transform: translate(0,0); text-align:left; }
+.caption.pos-topRight{ left:auto; right:10%; top:18%; transform: translate(0,0); text-align:right; }
+
+.caption.pos-bottomLeft{ left:10%; top:auto; bottom:12%; transform: translate(0,0); text-align:left; }
+.caption.pos-bottomRight{ left:auto; right:10%; top:auto; bottom:12%; transform: translate(0,0); text-align:right; }
+
+/* ---- SCRIM INVISIBLE para que el texto se lea (no es caja, es una nube suave) ---- */
+.caption::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform: translate(-50%, -50%);
+  width: min(980px, 96%);
+  height: 260px;
+  z-index: -1;
+  pointer-events:none;
+
+  /* sombra suave + gradiente */
+  background:
+    radial-gradient(closest-side, rgba(0,0,0,.45), rgba(0,0,0,0) 70%);
+  filter: blur(18px);
+  opacity: .85;
+}
+
+/* ajusta altura del scrim según posición */
+.caption.pos-top::before{ height: 220px; }
+.caption.pos-bottom::before{ height: 260px; }
+.caption.pos-center::before{ height: 240px; }
+.caption.pos-topLeft::before,
+.caption.pos-topRight::before,
+.caption.pos-bottomLeft::before,
+.caption.pos-bottomRight::before{
+  left: 0;
+  top: 0;
+  transform: none;
+  width: 560px;
+  height: 240px;
+  opacity: .75;
+}
+
+/* ---- TITULO ---- */
+.caption .title{
+  display:inline-block;
+  max-width:100%;
+  font-size: clamp(34px, 5.2vw, 64px);
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  line-height: 1.12;
+  color: #ffffff;
+
+  /* 🔥 SOMBRA NEGRA MULTICAPA (legibilidad top) */
+  text-shadow:
+    0 2px 0 rgba(0,0,0,.35),        /* borde oscuro */
+    0 6px 18px rgba(0,0,0,.75),     /* sombra cercana */
+    0 22px 70px rgba(0,0,0,.95),    /* sombra profunda */
+    0 0 26px rgba(255,255,255,.08); /* brillo muy leve */
+
+  white-space: normal;
+  overflow: visible;
+
+  opacity: 0;
+  transform: translateY(10px) scale(.99);
+  filter: blur(10px);
+}
+
+
+/* ---- EFECTO CINEMÁTICO: REVEAL (cortina) ---- */
+.caption .title{
+  position: relative;
+}
+.caption .title::after{
+  content:"";
+  position:absolute;
+  inset: -8px -10px;
+  background:
+    linear-gradient(90deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,.18) 50%,
+      rgba(255,255,255,0) 100%);
+  transform: translateX(-120%);
+  filter: blur(6px);
+  opacity: 0;
+  pointer-events:none;
+}
+
+/* Cuando entra el caption: título aparece con reveal + blur->sharp */
+@keyframes titleCineIn{
+  0%   { opacity:0; transform: translateY(14px) scale(.985); filter: blur(14px); }
+  55%  { opacity:1; transform: translateY(0) scale(1.01); filter: blur(0); }
+  100% { opacity:1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes lightSweep{
+  0%   { opacity:0; transform: translateX(-120%); }
+  25%  { opacity:1; }
+  100% { opacity:0; transform: translateX(120%); }
+}
+.caption.enter .title{
+  animation: titleCineIn 900ms cubic-bezier(.2,.9,.2,1) both;
+}
+.caption.enter .title::after{
+  animation: lightSweep 1150ms cubic-bezier(.2,.9,.2,1) 120ms both;
+}
+
+/* Si quieres una vibra aún más “cine”, activa en hover (opcional) */
+.caption .title:hover{
+  filter: drop-shadow(0 18px 70px rgba(0,0,0,.85));
+}
+
+/* ---- SUB (por click, difuminado elegante) ---- */
+.caption .sub{
+  margin-top: 14px;
+  font-size: clamp(16px, 2.6vw, 24px);
+  color: rgba(255,255,255,.92);
+
+  text-shadow:
+    0 14px 60px rgba(0,0,0,.75),
+    0 0 18px rgba(255,255,255,.08);
+
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(12px) scale(.995);
+  transition: opacity 850ms ease, filter 950ms ease, transform 850ms ease;
+}
+
+.caption.show-sub .sub{
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0) scale(1);
+}
+
+/* ---- Entrada/salida generales del caption (sin caja) ---- */
+@keyframes capInFree{
+  from { opacity:0; transform: translate(-50%,-50%) scale(.985); filter: blur(10px); }
+  to   { opacity:1; transform: translate(-50%,-50%) scale(1); filter: blur(0); }
+}
+@keyframes capOutFree{
+  from { opacity:1; filter: blur(0); }
+  to   { opacity:0; filter: blur(10px); }
+}
+.caption.enter{ animation: capInFree .55s cubic-bezier(.2,.9,.2,1) both; }
+.caption.exit{ animation: capOutFree .40s ease both; }
+
+/* Para posiciones sin translate(-50%,-50%) */
+.caption.pos-topLeft.enter,
+.caption.pos-topRight.enter,
+.caption.pos-bottomLeft.enter,
+.caption.pos-bottomRight.enter{
+  animation: none;
+  opacity: 1;
+}
+
+
+
+/* =========================
+   FINAL TITLE LIMPIO Y BONITO
+   ========================= */
+.finalTitle{
+  position:absolute;
+  top: 6%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.7);
+
+  font-size: clamp(36px, 5.5vw, 76px);
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-align: center;
+
+  /* 🌸 GRADIENTE PASTEL ALEGRE */
+  background: linear-gradient(
+    90deg,
+    #ffb7d5,
+    #ffe29a,
+    #bfefff,
+    #e6c9ff,
+    #bfffe6
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  /* ✅ TRAZADO (stroke) para legibilidad */
+  -webkit-text-stroke: 2px rgba(0,0,0,.38); /* ajusta 1px–3px */
+  paint-order: stroke fill; /* si el navegador lo soporta */
+
+  /* ✨ SOMBRA NÍTIDA (sin opacar) */
+  text-shadow:
+    0 2px 6px rgba(0,0,0,.30),
+    0 10px 18px rgba(0,0,0,.22);
+
+  /* ✨ GLOW LIMPIO */
+  filter:
+    drop-shadow(0 0 6px rgba(255,255,255,.35))
+    drop-shadow(0 0 12px rgba(255,183,213,.45))
+    drop-shadow(0 0 18px rgba(191,239,255,.35));
+
+  opacity: 0;
+  will-change: transform, opacity, background-position, filter;
+}
+
+@keyframes finalTitleCine {
+  0%   { opacity: 0; transform: translateX(-50%) scale(0.7); }
+  60%  { opacity: 1; transform: translateX(-50%) scale(1.08); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+@keyframes pastelFlow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.finalTitle.enter{
+  animation:
+    finalTitleCine 1.4s cubic-bezier(.2,.9,.2,1) both,
+    pastelFlow 5s ease-in-out infinite;
+}
+
+
+
+/* El título final NO debe tener scrim */
+.finalTitle::before{
+  display:none !important;
+}
