@@ -1,10 +1,11 @@
 /* =========================================================
    STORY APP (cinematográfico + ambience por escena + stepImage)
-   - Crossfade imágenes (imgA/imgB)
+   - Crossfade imágenes (imgA/imgB) esperando decode/load
    - StepImage: cambia a una sub-imagen SOLO en ese step y vuelve luego
    - Sub NO sale automático: aparece con un click extra (mismo step)
    - Ambience por escena con fade, NO se corta al pasar a video final
    - Video final con volumen configurable (muted true por defecto)
+   - FIX: caption se muestra SOLO cuando media está listo (no mezcla)
    ========================================================= */
 
 /* -------------------- DOM -------------------- */
@@ -22,19 +23,6 @@ const fxAudio = document.getElementById("fxAudio"); // ambiente por escena (din�
 let audioStarted = false;
 
 /* -------------------- DATA -------------------- */
-/**
- * scenes[].ambience opcional:
- *  ambience: { src: "assets/forest.mp3", volume: 0.10, loop:true }
- *
- * steps[].stepVideo opcional:
- *  stepVideo: { src:"assets/vid5.mp4", loop:true, muted:true, volume:0.0 }
- *
- * steps[].stepImage opcional:
- *  stepImage: "assets/subescena2.png"
- *
- * steps[].pos opcional (para CSS):
- *  pos: "pos-center" | "pos-bottom" | "pos-top" | "pos-topLeft" | "pos-topRight" | "pos-bottomLeft" | "pos-bottomRight"
- */
 const scenes = [
   {
     id: 0,
@@ -42,18 +30,9 @@ const scenes = [
     src: "assets/escena0.jpg",
     ambience: { src: "assets/amb_space.mp3", volume: 0.08, loop: true },
     steps: [
-  {
-    title: "Esta historia no empezó en un lugar…",
-    sub: "empezó en una pantalla.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Y sin darnos cuenta…",
-    sub: "ya estábamos a punto de vivir algo muy real.",
-    pos: "pos-bottom"
-  }
-]
-
+      { title: "Esta historia no empezó en un lugar…", sub: "empezó en una pantalla.", pos: "pos-bottom" },
+      { title: "Y sin darnos cuenta…", sub: "ya estábamos a punto de vivir algo muy real.", pos: "pos-bottom" }
+    ]
   },
   {
     id: 1,
@@ -61,107 +40,45 @@ const scenes = [
     src: "assets/escena1.png",
     ambience: { src: "assets/amb_room.mp3", volume: 0.07, loop: true },
     steps: [
-  {
-    title: "Te conocí jugando Wild Rift.",
-    sub: "Tú pensabas que yo te odiaba por jugar en mi misma línea…",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Pero la verdad es que ahí empezó todo.",
-    sub: "Como si el destino decidiera meterse a jugar con nosotros.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Entre partidas, bromas y risas…",
-    sub: "dejaste de ser solo alguien del juego y empezaste a quedarte conmigo.",
-    stepImage: "assets/subescena1.png",
-    pos: "pos-bottom"
-  }
-]
-
+      { title: "Te conocí jugando Wild Rift.", sub: "Tú pensabas que yo te odiaba por jugar en mi misma línea…", pos: "pos-bottom" },
+      { title: "Pero la verdad es que ahí empezó todo.", sub: "Como si el destino decidiera meterse a jugar con nosotros.", pos: "pos-bottom" },
+      { title: "Entre partidas, bromas y risas…", sub: "dejaste de ser solo alguien del juego y empezaste a quedarte conmigo.", stepImage: "assets/subescena1.png", pos: "pos-bottom" }
+    ]
   },
   {
     id: 2,
     type: "image",
     src: "assets/escena2.png",
     ambience: { src: "assets/amb_night.mp3", volume: 0.08, loop: true },
-  steps: [
-  {
-    title: "Entre mensajes que se alargaban…",
-    sub: "llegó una madrugada que lo cambió todo.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Era 31 de diciembre.",
-    sub: "Mientras el año se despedía, yo hablaba contigo por celular.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Con nervios, pero seguro de lo que sentía…",
-    sub: "te lo pregunté.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "¿Quieres ser mi novia?",
-    sub: "Y desde ahí, empezamos a elegirnos.",
-    stepImage: "assets/subescena2.png",
-    pos: "pos-bottom"
-  }
-]
-
+    steps: [
+      { title: "Entre mensajes que se alargaban…", sub: "llegó una madrugada que lo cambió todo.", pos: "pos-bottom" },
+      { title: "Era 31 de diciembre.", sub: "Mientras el año se despedía, yo hablaba contigo por celular.", pos: "pos-bottom" },
+      { title: "Con nervios, pero seguro de lo que sentía…", sub: "te lo pregunté.", pos: "pos-bottom" },
+      { title: "¿Quieres ser mi novia?", sub: "Y desde ahí, empezamos a elegirnos.", stepImage: "assets/subescena2.png", pos: "pos-bottom" }
+    ]
   },
   {
     id: 3,
     type: "image",
     src: "assets/escena3.png",
     ambience: { src: "assets/amb_city.mp3", volume: 0.07, loop: true },
- steps: [
-    {
-      title: "Después de eso, pensé en tener un detalle contigo.",
-      sub: "algo simple, pero con cariño.",
-      pos: "pos-bottom"
-    },
-    {
-      title: "Fui a una tienda donde había visto algo días antes.",
-      sub: "pensé que todavía estaría ahí.",
-      pos: "pos-bottom"
-    },
-    {
-      title: "Cuando llegué, ya no estaba.",
-      sub: "y tampoco lo encontré en otros lados.",
-      pos: "pos-bottom"
-    },
-    {
-      title: "Así que me moví de un lugar a otro.",
-      sub: "sin apuro… pero pensando en ti todo el tiempo.",
-      pos: "pos-bottom"
-  }
-]
-
+    steps: [
+      { title: "Después de eso, pensé en tener un detalle contigo.", sub: "algo simple, pero con cariño.", pos: "pos-bottom" },
+      { title: "Fui a una tienda donde había visto algo días antes.", sub: "pensé que todavía estaría ahí.", pos: "pos-bottom" },
+      { title: "Cuando llegué, ya no estaba.", sub: "y tampoco lo encontré en otros lados.", pos: "pos-bottom" },
+      { title: "Así que me moví de un lugar a otro.", sub: "sin apuro… pero pensando en ti todo el tiempo.", pos: "pos-bottom" }
+    ]
   },
   {
     id: 4,
     type: "image",
     src: "assets/escena4.jpg",
     ambience: { src: "assets/forest.mp3", volume: 0.10, loop: true },
-   steps: [
-  {
-    title: "Con el regalo al fin en mis manos…",
-    sub: "fui directo al parque.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Entré con la mochila y la bolsita apretada.",
-    sub: "sabía que estaba a punto de verte.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Me acerqué a la baranda frente a la laguna.",
-    sub: "respiré… porque ese momento podía cambiarlo todo.",
-    pos: "pos-bottom"
-  }
-]
-
+    steps: [
+      { title: "Con el regalo al fin en mis manos…", sub: "fui directo al parque.", pos: "pos-bottom" },
+      { title: "Entré con la mochila y la bolsita apretada.", sub: "sabía que estaba a punto de verte.", pos: "pos-bottom" },
+      { title: "Me acerqué a la baranda frente a la laguna.", sub: "respiré… porque ese momento podía cambiarlo todo.", pos: "pos-bottom" }
+    ]
   },
   {
     id: 5,
@@ -169,67 +86,31 @@ const scenes = [
     src: "assets/escena5.png",
     ambience: { src: "assets/forest.mp3", volume: 0.10, loop: true },
     steps: [
-  {
-    title: "Nuestra primera videollamada fue ahí.",
-    sub: "Tú en tu parque… yo frente a la laguna.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Intentaba verme calmado.",
-    sub: "pero por dentro estaba temblando.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "No era solo una llamada.",
-    sub: "eras tú.",
-    stepImage: "assets/subescena3.png",
-    pos: "pos-bottom"
-  }
-]
-
+      { title: "Nuestra primera videollamada fue ahí.", sub: "Tú en tu parque… yo frente a la laguna.", pos: "pos-bottom" },
+      { title: "Intentaba verme calmado.", sub: "pero por dentro estaba temblando.", pos: "pos-bottom" },
+      { title: "No era solo una llamada.", sub: "eras tú.", stepImage: "assets/subescena3.png", pos: "pos-bottom" }
+    ]
   },
   {
     id: 6,
     type: "image",
     src: "assets/escena6.png",
     ambience: { src: "assets/amb_fire.mp3", volume: 0.06, loop: true },
-   steps: [
-  {
-    title: "Después de verte, entendí algo importante.",
-    sub: "el amor también vive en los pequeños gestos.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Tú me enseñaste a dar detalles simples.",
-    sub: "donde lo único que importa es el amor.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Hicimos nuestras manualidades.",
-    sub: "yo te hice una cajita… tú me regalaste palabras que guardo en el corazón.",
-    pos: "pos-bottom"
-  }
-]
-
+    steps: [
+      { title: "Después de verte, entendí algo importante.", sub: "el amor también vive en los pequeños gestos.", pos: "pos-bottom" },
+      { title: "Tú me enseñaste a dar detalles simples.", sub: "donde lo único que importa es el amor.", pos: "pos-bottom" },
+      { title: "Hicimos nuestras manualidades.", sub: "yo te hice una cajita… tú me regalaste palabras que guardo en el corazón.", pos: "pos-bottom" }
+    ]
   },
   {
     id: 7,
     type: "image",
     src: "assets/escena7.png",
     ambience: { src: "assets/amb_home.mp3", volume: 0.06, loop: true },
-  steps: [
-  {
-    title: "Comimos pastel en videollamada.",
-    sub: "era nuestro aniversario.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "No compartimos la misma mesa…",
-    sub: "pero sí el mismo momento.",
-    pos: "pos-bottom"
-  }
-]
-
+    steps: [
+      { title: "Comimos pastel en videollamada.", sub: "era nuestro aniversario.", pos: "pos-bottom" },
+      { title: "No compartimos la misma mesa…", sub: "pero sí el mismo momento.", pos: "pos-bottom" }
+    ]
   },
   {
     id: 8,
@@ -237,38 +118,19 @@ const scenes = [
     src: "assets/escena8.png",
     ambience: { src: "assets/amb_soft.mp3", volume: 0.05, loop: true },
     steps: [
-  {
-    title: "Para mi cumpleaños me regalaste algo único.",
-    sub: "",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Un video lleno de amor.",
-    sub: "ese día me sentí querido, elegido y acompañado.",
-    pos: "pos-bottom"
-  }
-]
-
+      { title: "Para mi cumpleaños me regalaste algo único.", sub: "", pos: "pos-bottom" },
+      { title: "Un video lleno de amor.", sub: "ese día me sentí querido, elegido y acompañado.", pos: "pos-bottom" }
+    ]
   },
   {
     id: 9,
     type: "image",
     src: "assets/escena9.png",
     ambience: { src: "assets/amb_wind.mp3", volume: 0.06, loop: true },
-   steps: [
-  {
-    title: "Todo eso nos fue trayendo hasta aquí.",
-    sub: "una historia distinta.",
-    pos: "pos-bottom"
-  },
-  {
-    title: "Nuestra historia no empezó como las demás.",
-    sub: "empezó lejos… pero sincera.",
-    stepImage: "assets/subescena9.png",
-    pos: "pos-bottom"
-  }
-]
-
+    steps: [
+      { title: "Todo eso nos fue trayendo hasta aquí.", sub: "una historia distinta.", pos: "pos-bottom" },
+      { title: "Nuestra historia no empezó como las demás.", sub: "empezó lejos… pero sincera.", stepImage: "assets/subescena9.png", pos: "pos-bottom" }
+    ]
   },
   {
     id: 10,
@@ -276,27 +138,19 @@ const scenes = [
     src: "assets/escena10.png",
     ambience: { src: "assets/amb_final.mp3", volume: 0.20, loop: true },
     steps: [
-  {
-    title: "Te amo, mi pequeña bebé.",
-    sub: "",
-    pos: "pos-center"
-  },
-  {
-    title: "Por muchos años más juntos.",
-    sub: "",
-    pos: "pos-center"
-  }
-]
-,
+      { title: "Te amo, mi pequeña bebé.", sub: "", pos: "pos-center" },
+      { title: "Por muchos años más juntos.", sub: "", pos: "pos-center" }
+    ],
     endVideo: {
       src: "assets/vid10.mp4",
       title: "Feliz Primer Año,Mi Pequeña Dramatica :D",
-      muted: true,      // ✅ cambia a false si quieres oírlo
-      volume: 0.15      // ✅ si muted=false, este es el volumen del video final
-    },
-  },
+      muted: true,
+      volume: 0.15
+    }
+  }
 ];
 
+/* -------------------- PRELOAD -------------------- */
 function collectAssetsFromScenes(scenes){
   const imgs = [];
   const videos = [];
@@ -332,7 +186,7 @@ function preloadVideo(src){
   return new Promise((resolve) => {
     const v = document.createElement("video");
     v.preload = "auto";
-    v.muted = true;      // para que deje precargar sin líos
+    v.muted = true;
     v.playsInline = true;
     v.onloadeddata = () => resolve(true);
     v.onerror = () => resolve(false);
@@ -354,17 +208,12 @@ function preloadAudio(src){
 
 async function preloadAllAssets(){
   const { imgs, videos, audios } = collectAssetsFromScenes(scenes);
-
-  // Importante: imágenes primero, porque tu UI depende de ellas.
   await Promise.all(imgs.map(preloadImage));
-
-  // Video/audio en paralelo (si alguno falla, no rompe nada)
   await Promise.all([
     ...videos.map(preloadVideo),
     ...audios.map(preloadAudio),
   ]);
 }
-
 
 /* -------------------- STATE -------------------- */
 let sceneIndex = 0;
@@ -431,7 +280,7 @@ function fadeAudioTo(audioEl, target, ms=900){
   });
 }
 
-/* ---- UI dots (si lo quieres visible) ---- */
+/* ---- UI dots ---- */
 function buildProgress(){
   if(!progress) return;
   progress.innerHTML = "";
@@ -444,6 +293,29 @@ function buildProgress(){
 function setCounter(){
   if(!counter) return;
   counter.textContent = `Escena ${sceneIndex}/${scenes.length-1}`;
+}
+
+/* =========================================================
+   MEDIA READY HELPERS
+   ========================================================= */
+function waitImageReady(imgEl){
+  if (imgEl.decode) {
+    return imgEl.decode().catch(() => {});
+  }
+  return new Promise((res) => {
+    if (imgEl.complete && imgEl.naturalWidth > 0) return res();
+    imgEl.onload = () => res();
+    imgEl.onerror = () => res();
+  });
+}
+
+function waitVideoReady(v){
+  return new Promise((res) => {
+    const done = () => res();
+    v.addEventListener("canplay", done, { once:true });
+    v.addEventListener("loadeddata", done, { once:true });
+    v.addEventListener("error", done, { once:true });
+  });
 }
 
 /* =========================================================
@@ -460,35 +332,30 @@ function stopVideo(){
   isStepVideoPlaying = false;
 }
 
-function showImageCrossfade(src){
-  // si había stepVideo, sacarlo suave (sin cortar ambience)
+async function showImageCrossfade(src){
   if(isStepVideoPlaying){
-    fadeElTo(vidEl, 0, 350).finally(() => stopVideo());
+    await fadeElTo(vidEl, 0, 350).catch(()=>{});
+    stopVideo();
   }
 
-  back.onload = () => {
-    back.classList.add("is-active");
-    front.classList.remove("is-active");
-    const tmp = front; front = back; back = tmp;
-    back.onload = null;
-  };
   back.src = src;
+  await waitImageReady(back);
+
+  back.classList.add("is-active");
+  front.classList.remove("is-active");
+  const tmp = front; front = back; back = tmp;
 }
 
 async function showStepImage(stepImageSrc, sc){
   if(!stepImageSrc) return;
-
-  // si venía stepVideo, apagar
   await stopStepVideoToSceneImage(sc);
-
-  // mostrar imagen extra
-  showImageCrossfade(stepImageSrc);
+  await showImageCrossfade(stepImageSrc);
   isStepImageActive = true;
 }
 
 async function stopStepImageToSceneImage(sc){
   if(!isStepImageActive) return;
-  showImageCrossfade(sc.src);
+  await showImageCrossfade(sc.src);
   isStepImageActive = false;
 }
 
@@ -496,7 +363,6 @@ async function stopStepImageToSceneImage(sc){
 async function playStepVideo(stepVideo, sc){
   if(!stepVideo?.src) return;
 
-  // si había stepImage activo, volver a base primero
   await stopStepImageToSceneImage(sc);
 
   vidEl.style.display = "block";
@@ -508,6 +374,9 @@ async function playStepVideo(stepVideo, sc){
   vidEl.playsInline = true;
   if(typeof stepVideo.volume === "number") vidEl.volume = Math.max(0, Math.min(1, stepVideo.volume));
 
+  vidEl.load();
+  await waitVideoReady(vidEl);
+
   try { await vidEl.play(); } catch(e){}
   await fadeElTo(vidEl, 1, 600);
   isStepVideoPlaying = true;
@@ -518,7 +387,7 @@ async function stopStepVideoToSceneImage(sc){
   if(!isStepVideoPlaying) return;
   await fadeElTo(vidEl, 0, 450);
   stopVideo();
-  showImageCrossfade(sc.src);
+  await showImageCrossfade(sc.src);
 }
 
 /* =========================================================
@@ -531,7 +400,6 @@ function showCaption(step){
   const box = document.createElement("div");
   box.className = "caption enter";
 
-  // posición opcional (usa clases del CSS)
   if(pos) box.classList.add(pos);
 
   box.innerHTML = `
@@ -540,14 +408,11 @@ function showCaption(step){
   `;
   overlay.appendChild(box);
 
-  // al mostrar caption: sub oculto hasta click (si existe)
-  isSubRevealed = !sub; // si no hay sub, ya está "revelado"
+  isSubRevealed = !sub;
   box.classList.remove("show-sub");
 
-  // efecto "typing" lento: solo cursor, el texto ya está completo (JS no corta letras)
-  // (si quieres typing real letra por letra, te lo armo después)
   box.classList.add("typing");
-  setTimeout(() => box.classList.remove("typing"), 2400); // 👈 más lento
+  setTimeout(() => box.classList.remove("typing"), 2400);
 
   return box;
 }
@@ -561,7 +426,7 @@ function revealSubIfNeeded(){
 
   current.classList.add("show-sub");
   isSubRevealed = true;
-  return true; // consumimos el click
+  return true;
 }
 
 function animateOutCurrentCaption(){
@@ -591,16 +456,14 @@ function startAmbientAudioOnce(){
   });
 }
 
-// Ambience por escena (si falta, no rompe)
 async function applySceneAmbience(sc){
   if(!fxAudio) return;
 
   const amb = sc?.ambience;
   const nextSrc = amb?.src || "";
   const nextVol = (typeof amb?.volume === "number") ? amb.volume : 0.10;
-  const nextLoop = (amb?.loop !== false); // default true
+  const nextLoop = (amb?.loop !== false);
 
-  // Si no hay ambience: apagar suave
   if(!nextSrc){
     if(currentFxSrc){
       await fadeAudioTo(fxAudio, 0.0, 700);
@@ -611,14 +474,12 @@ async function applySceneAmbience(sc){
     return;
   }
 
-  // Si es el mismo archivo: ajusta volumen
   if(currentFxSrc === nextSrc){
     fxAudio.loop = nextLoop;
     await fadeAudioTo(fxAudio, nextVol, 450);
     return;
   }
 
-  // Cambiar de uno a otro (fade out -> load -> fade in)
   if(currentFxSrc){
     await fadeAudioTo(fxAudio, 0.0, 550);
     try { fxAudio.pause(); } catch(e){}
@@ -635,14 +496,13 @@ async function applySceneAmbience(sc){
     await fxAudio.play();
     await fadeAudioTo(fxAudio, nextVol, 800);
   } catch(e){
-    // si falla (bloqueo / archivo no existe), no romper
     try { fxAudio.pause(); } catch(_e){}
     currentFxSrc = "";
   }
 }
 
 /* =========================================================
-   SCENE LOAD
+   SCENE LOAD (espera imagen lista)
    ========================================================= */
 async function loadScene(idx){
   const sc = scenes[idx];
@@ -652,16 +512,15 @@ async function loadScene(idx){
   buildProgress();
   setCounter();
 
-  // reset step states
   isStepImageActive = false;
   isStepVideoPlaying = false;
   isSubRevealed = false;
 
-  // mostrar imagen base
-  showImageCrossfade(sc.src);
   overlay.innerHTML = "";
 
-  // ambience con fade
+  // Imagen base lista antes de seguir
+  await showImageCrossfade(sc.src);
+
   await applySceneAmbience(sc);
 }
 
@@ -671,34 +530,31 @@ async function loadScene(idx){
 async function playFinalVideo(sc){
   await animateOutCurrentCaption();
 
-  // apagar stepVideo/stepImage si estaban
   await stopStepVideoToSceneImage(sc);
   await stopStepImageToSceneImage(sc);
 
-  // bajar música general un poquito durante el final (pero NO tocar fxAudio)
   await fadeAudioTo(bgAudio, 0.14, 650);
 
-  // ocultar imágenes (video arriba)
   imgA.classList.remove("is-active");
   imgB.classList.remove("is-active");
 
-  // configurar video final
   vidEl.style.display = "block";
   vidEl.style.opacity = "0";
   vidEl.src = sc.endVideo.src;
   vidEl.currentTime = 0;
   vidEl.loop = false;
 
-  // ✅ control de audio del video final
   const muted = sc.endVideo.muted ?? true;
   const vol = (typeof sc.endVideo.volume === "number") ? sc.endVideo.volume : 0.15;
   vidEl.muted = muted;
   if(!muted) vidEl.volume = Math.max(0, Math.min(1, vol));
 
+  vidEl.load();
+  await waitVideoReady(vidEl);
+
   try { await vidEl.play(); } catch(e){}
   await fadeElTo(vidEl, 1, 700);
 
-  // título encima
   overlay.innerHTML = "";
   const title = document.createElement("div");
   title.className = "finalTitle enter";
@@ -707,7 +563,6 @@ async function playFinalVideo(sc){
 
   hasPlayedFinalVideo = true;
 
-  // cuando termine, devolver música general
   vidEl.onended = () => {
     fadeAudioTo(bgAudio, 0.22, 800);
   };
@@ -718,6 +573,7 @@ async function playFinalVideo(sc){
    - click 1: muestra título
    - click 2 (si hay sub): revela sub (mismo step)
    - click 3: pasa al siguiente step
+   - FIX: texto aparece después del media ready
    ========================================================= */
 async function next(){
   if(isAnimating) return;
@@ -727,16 +583,13 @@ async function next(){
 
   const sc = scenes[sceneIndex];
 
-  // reintento por si el navegador bloqueó antes
   await applySceneAmbience(sc);
 
-  // si hay sub y no está revelado: este click SOLO revela sub
   if(revealSubIfNeeded()){
     isAnimating = false;
     return;
   }
 
-  // FINAL: después de terminar steps
   if(sceneIndex === 10 && stepIndex >= sc.steps.length && sc.endVideo && !hasPlayedFinalVideo){
     await playFinalVideo(sc);
     isAnimating = false;
@@ -751,47 +604,55 @@ async function next(){
   if(stepIndex < sc.steps.length){
     const step = sc.steps[stepIndex];
 
-    // salir caption anterior
     await animateOutCurrentCaption();
 
-    // manejar step media
+    // evitar mezcla: ocultar overlay mientras cambia media
+    overlay.style.opacity = "0";
+    overlay.innerHTML = "";
+
     if(step.stepVideo){
       await playStepVideo(step.stepVideo, sc);
     } else if(step.stepImage){
       await showStepImage(step.stepImage, sc);
     } else {
-      // si veníamos de stepVideo/stepImage, volver a base
       await stopStepVideoToSceneImage(sc);
       await stopStepImageToSceneImage(sc);
+      await showImageCrossfade(sc.src);
     }
 
-    // mostrar caption (sub oculto hasta próximo click)
     showCaption(step);
-    stepIndex++;
+    overlay.style.opacity = "1";
 
+    stepIndex++;
     isAnimating = false;
     return;
   }
 
-  // SEE NEXT SCENE
+  // NEXT SCENE
   if(sceneIndex < scenes.length - 1){
     await animateOutCurrentCaption();
 
-    // limpiar step media
+    overlay.style.opacity = "0";
+    overlay.innerHTML = "";
+
     await stopStepVideoToSceneImage(sc);
     await stopStepImageToSceneImage(sc);
 
     await loadScene(sceneIndex + 1);
 
-    // mostrar primer step
     const first = scenes[sceneIndex].steps[0];
-    // aplicar step media si existe
+
     if(first.stepVideo){
       await playStepVideo(first.stepVideo, scenes[sceneIndex]);
     } else if(first.stepImage){
       await showStepImage(first.stepImage, scenes[sceneIndex]);
+    } else {
+      await showImageCrossfade(scenes[sceneIndex].src);
     }
+
     showCaption(first);
+    overlay.style.opacity = "1";
+
     stepIndex = 1;
   }
 
@@ -804,26 +665,23 @@ stage.addEventListener("click", next);
    INIT
    ========================================================= */
 (async function init(){
-  // (Opcional) Bloquea clicks mientras carga
   stage.style.pointerEvents = "none";
 
   await preloadAllAssets();
 
-  // Carga escena 0, pero espera el onload real de la primera imagen “front”
   await loadScene(0);
 
+  // asegurar que la imagen activa (front) está lista antes del primer caption
   await new Promise((r) => {
-    // fuerza a esperar a que la img activa cargue
     const active = front;
     if (active.complete && active.naturalWidth > 0) return r();
     active.onload = () => r();
     active.onerror = () => r();
   });
 
+  overlay.style.opacity = "1";
   showCaption(scenes[0].steps[0]);
   stepIndex = 1;
 
   stage.style.pointerEvents = "auto";
 })();
-
-
