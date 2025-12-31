@@ -162,7 +162,7 @@ const scenes = [
     { title: "Por muchos años más juntos.", sub: "", pos: "pos-center" }
   ],
   endVideo: {
-    src: "assets/vid10.mp4",
+    src: "assets/Vid10.mp4",
     title: "Feliz Primer Año, Mi Pequeña Dramática :D",
     muted: true,
     volume: 0.15
@@ -707,6 +707,7 @@ stage.addEventListener("click", next);
 
   stage.style.pointerEvents = "auto";
 })();
+
 
 
 
