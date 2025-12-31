@@ -127,27 +127,63 @@ const scenes = [
     type: "image",
     src: "assets/escena9.png",
     ambience: { src: "assets/amb_wind.mp3", volume: 0.06, loop: true },
-    steps: [
+        steps: [
       { title: "Todo eso nos fue trayendo hasta aquí.", sub: "una historia distinta.", pos: "pos-bottom" },
       { title: "Nuestra historia no empezó como las demás.", sub: "empezó lejos… pero sincera.", stepImage: "assets/subescena9.png", pos: "pos-bottom" }
+
+
+steps: [
+    {
+      title: "Todo eso nos fue trayendo hasta aquí.",
+      sub: "una historia distinta.",
+      pos: "pos-bottom"
+    },
+    {
+      title: "Nuestra historia no empezó como las demás.",
+      sub: "empezó lejos… pero sincera.",
+      pos: "pos-bottom"
+    },
+    {
+      title: "Y cuando algo nace así…",
+      sub: "con paciencia, con verdad y con cariño real…", stepImage: "assets/subescena9.png",
+      pos: "pos-bottom"
+    },
+    {
+      title: "se queda.",
+      sub: "crece… y se vuelve hogar.",
+      pos: "pos-bottom" }
     ]
   },
-  {
-    id: 10,
-    type: "image",
-    src: "assets/escena10.png",
-    ambience: { src: "assets/amb_final.mp3", volume: 0.20, loop: true },
-    steps: [
-      { title: "Te amo, mi pequeña bebé.", sub: "", pos: "pos-center" },
-      { title: "Por muchos años más juntos.", sub: "", pos: "pos-center" }
-    ],
-    endVideo: {
-      src: "assets/Vid10.mp4",
-      title: "Feliz Primer Año,Mi Pequeña Dramatica :D",
-      muted: true,
-      volume: 0.15
+{
+  id: 10,
+  type: "image",
+  src: "assets/escena10.png",
+  ambience: { src: "assets/amb_final.mp3", volume: 0.20, loop: true },
+  steps: [
+    {
+      title: "Y por eso hoy puedo decirlo sin dudas…",
+      sub: "",
+      pos: "pos-center"
+    },
+    {
+      title: "Te amo, mi pequeña bebé.",
+      sub: "",
+      pos: "pos-center"
+    },
+    {
+      title: "Por muchos años más juntos.",
+      sub: "",
+      pos: "pos-center"
     }
+  ],
+  endVideo: {
+    src: "assets/vid10.mp4",
+    title: "Feliz Primer Año, Mi Pequeña Dramática :D",
+    muted: true,
+    volume: 0.15
   }
+}
+
 ];
 
 /* -------------------- PRELOAD -------------------- */
@@ -685,4 +721,5 @@ stage.addEventListener("click", next);
 
   stage.style.pointerEvents = "auto";
 })();
+
 
